@@ -37,7 +37,7 @@
     - network_backup
 
 - name: display config file content
-  debug: msg = "{{ lookup('file', network_archive_file.path).split('\n') }}"
+  debug: msg="{{ lookup('file', network_archive_file.path).split('\n') }}"
   when:
     - archive_display_config is defined
     - archive_display_config
