@@ -1,0 +1,64 @@
+---
+
+- name: Check network device OS
+  assert:
+    that: >
+      ansible_network_os == 'nxos' or
+      ansible_network_os == 'ios' or
+      ansible_network_os == 'junos'
+
+- name: NXOS save running to starting config
+  nxos_config:
+    save_when: "{{ network_backup_cfg_run_to_start }}"
+  when: >
+    ansible_network_os == 'nxos' and
+    network_backup_cfg_run_to_start is defined
+  tags: 
+    - network_backup
+
+- name: create temp file
+  tempfile:
+    state: file
+    prefix: ansible_
+    suffix: "_{{ inventory_hostname }}"
+  register: network_archive_file
+  check_mode: no
+  changed_when: false
+  tags:
+    - network_backup
+
+- name: Create archive config in temp file
+  template:
+    src: "{{ ansible_network_os }}_archive.j2"
+    dest: "{{ network_archive_file.path }}"
+  check_mode: no
+  changed_when: false             
+  tags: 
+    - network_backup
+
+- name: display config file content
+  debug: msg = "{{ lookup('file', network_archive_file.path).split('\n') }}"
+  when:
+    - archive_display_config is defined
+    - archive_display_config
+  ignore_errors: true
+  check_mode: no  
+  tags: 
+    - network_backup
+
+- name: Push archive config to nxos
+  nxos_config:
+    src: "{{ network_archive_file.path }}"    
+  when: >
+    ansible_network_os == 'nxos'
+  tags: 
+    - network_backup
+
+- name: delete temp file
+  file:
+    path: "{{ network_archive_file.path }}"
+    state: absent
+  check_mode: no 
+  changed_when: false   
+  tags: 
+    - network_backup

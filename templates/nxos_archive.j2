@@ -1,0 +1,24 @@
+{%- if network_backup_archive is defined -%}
+  {%- if 'state' in network_backup_archive and network_backup_archive.state is sameas true -%}
+archive{{ "\n" }}
+
+    {%- if 'path' in network_backup_archive %}
+  path {{ network_backup_archive.path }}{{ "\n" }}
+    {%- endif -%}
+
+    {%- if 'max' in network_backup_archive %}
+  maximum {{ network_backup_archive.max }}{{ "\n" }}
+    {%- endif -%}
+
+    {%- if 'time' in network_backup_archive %}
+  time-period {{ network_backup_archive.time }}{{ "\n" }}
+    {%- endif -%}
+
+    {%- if 'wrmem' in network_backup_archive and network_backup_archive.wrmem is sameas true %}
+  write-memory{{ "\n" }}
+    {%- endif -%}
+
+  {%- else -%}
+no archive
+  {%- endif -%}
+{%- endif -%}
