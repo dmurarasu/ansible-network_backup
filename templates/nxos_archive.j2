@@ -18,7 +18,7 @@ archive{{ "\n" }}
   write-memory{{ "\n" }}
     {%- endif -%}
 
-  {%- else -%}
+  {%- elif 'state' in network_backup_archive and network_backup_archive.state is sameas false -%}
 no archive
   {%- endif -%}
 {%- endif -%}
